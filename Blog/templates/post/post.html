@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }}{% endblock %}
+{% block scripts %}
+{{ super() }}
+{{ moment.include_moment() }}
+{% endblock scripts %}
+{% block content %}
+
+<!-- Page Header-->
+<header class="masthead" style="background-image: url('{{post.img_url}}')">
+  <div class="container position-relative px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+      <div class="col-md-10 col-lg-8 col-xl-7">
+        <div class="post-heading">
+          <h1>{{ post['title'] }}</h1>
+          <h2 class="subheading">{{ post['subtitle'] }}</h2>
+          <span class="meta">Posted by
+            <a href="{{ url_for('auth.profile', username=post.author.username) }}">{{ post.author.username.capitalize()
+              }}</a>
+            on {{ moment(post.date).fromNow() }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Post Content -->
+<article>
+  <div class="container px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+      <div class="col-md-10 col-lg-8 col-xl-7">
+        {{ post['body']|safe }}
+
+        {% if current_user.id == post.author.id %}
+        <div class="d-flex justify-content-end mb-4">
+          <!-- TODO: Editing posts-->
+          <a class="btn btn-primary float-right" href="">Edit Post</a>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</article>
+
+<div class="container px-4 px-lg-5 mt-3">
+  <div class="row gx-4 gx-lg-5 justify-content-center">
+    <div class="col-md-10 col-lg-8 col-xl-7">
+      <form action="{{ url_for('post.post_by_id', post_id=post.id) }}" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+          <legend class="form-group border-bottom mb-4">Add comments</legend>
+          <div class="form-group">
+            {{ form.body() }}
+          </div>
+        </fieldset>
+        <div class="form-group">
+          {{ form.submit(class="btn btn-primary mt-1 mb-1") }}
+        </div>
+      </form>
+
+      {% for comment in post_comments %}
+      <div class="comment border-bottom mb-1">
+        {% if comment.disabled %}
+        <span class="d-flex justify-content-between">
+          <span>
+            <img src="{{ comment.comment_user.avatar(20) }}">
+            <a class="text-decoration-underline px-2"
+              href="{{ url_for('auth.profile', username=comment.comment_user.username) }}">{{
+              comment.comment_user.username }}</a>
+          </span>
+          <span>{{ moment(comment.time).fromNow() }}</span>
+        </span>
+        <p><i>This comment has been disabled by a moderator.</i></p>
+        {% endif %}
+
+        {% if moderate or not comment.disabled %}
+        <span class="d-flex justify-content-between">
+          <span>
+            <img src="{{ comment.comment_user.avatar(20) }}">
+            <a class="text-decoration-underline px-2"
+              href="{{ url_for('auth.profile', username=comment.comment_user.username) }}">{{
+              comment.comment_user.username }}</a>
+          </span>
+          <span>{{ moment(comment.time).fromNow() }}</span>
+        </span>
+        <p class="">{{ comment.body | safe }}</p>
+        {% endif %}
+
+      </div>
+      {% endfor %}
+
+
+
+      {% if post_comments.has_prev %}
+      <a href="{{ url_for('post.post_by_id', post_id=post.id, page=posts.prev_num) }}">Previous</a>
+      {% endif %}
+      {% for page_num in post_comments.iter_pages(left_edge=1, right_edge=0, left_current=1, right_current=1) %}
+      {% if page_num %}
+      {% if post_comments.page == page_num %}
+      <a class="btn btn-info mb-4" href="{{ url_for('post.post_by_id', post_id=post.id, page=page_num) }}">{{ page_num
+        }}</a>
+      {% else %}
+      <a class="btn btn-outline-info mb-4" href="{{ url_for('post.post_by_id', post_id=post.id, page=page_num) }}">{{
+        page_num }}</a>
+      {% endif %}
+      {% else %}...
+      {% endif %}
+      {% endfor %}
+      {% if post_comments.has_next %}
+      <a href="{{ url_for('post.post_by_id', post_id=post.id, page=posts.next_num) }}">Next</a>
+      {% endif %}
+
+
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

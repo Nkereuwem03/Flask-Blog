@@ -1,0 +1,35 @@
+# The new functions make it easy to create a large number of fake users and posts 
+# from the fake.py file using the Python shell:
+# If you run the application now, you will see a long list of random blog posts on the
+# home page, by many different users.
+(venv) $ flask shell
+>>> from Blog import fake
+>>> fake.users(100)
+>>> fake.posts(100)
+
+# To populate the Role table 
+# run
+(venv) $ flask shell
+>>> from Blog,models import Role
+>>> Role.insert_roles()
+# OR
+(venv) $ flask shell
+>>> Role.insert_roles()
+>>> Role.query.all()
+[<Role 'Administrator'>, <Role 'User'>, <Role 'Moderator'>]
+
+# It is also a good idea to update the user list so that all the user accounts that were
+# created before roles and permissions existed have a role assigned. You can run the 
+# following code in a Python shell to perform this update:
+(venv) $ flask shell
+>>> admin_role = Role.query.filter_by(name='Administrator').first()
+>>> default_role = Role.query.filter_by(default=True).first()
+>>> for u in User.query.all():
+...     if u.role is None:
+...         if u.email == app.config['FLASKY_ADMIN']:
+...             u.role = admin_role
+...         else:
+...             u.role = default_role
+...
+>>> db.session.commit()
+The user system is now fairly

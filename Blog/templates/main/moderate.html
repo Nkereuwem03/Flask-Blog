@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Moderate comments{% endblock %}
+{% block scripts %}
+{{ super() }}
+{{ moment.include_moment() }}
+{% endblock scripts %}
+{% block content %}
+
+<!-- Page Header-->
+<header class="masthead" style="background-image: url('')">
+  <div class="container position-relative px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+      <div class="col-md-10 col-lg-8 col-xl-7">
+        <div class="post-heading">
+          <h1>Comments Moderation</h1>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container px-4 px-lg-5 mt-3">
+  <div class="row gx-4 gx-lg-5 justify-content-center">
+    <div class="col-md-10 col-lg-8 col-xl-7">
+
+      {% set moderate = True %}
+
+      {% for comment in comments %}
+      <div class="comment border-bottom mb-1 pb-1">
+        {% if comment.disabled %}
+        <span class="d-flex justify-content-between">
+          <span>
+            <img src="{{ comment.comment_user.avatar(20) }}">
+            <a class="text-decoration-underline px-2"
+              href="{{ url_for('auth.profile', username=comment.comment_user.username) }}">{{
+              comment.comment_user.username }}</a>
+          </span>
+          <span>{{ moment(comment.time).fromNow() }}</span>
+        </span>
+        <p><i>This comment has been disabled by a moderator.</i></p>
+        <p class="">{{ comment.body | safe }}</p>
+        {% else %}
+
+        <span class="d-flex justify-content-between">
+          <span>
+            <img src="{{ comment.comment_user.avatar(20) }}">
+            <a class="text-decoration-underline px-2"
+              href="{{ url_for('auth.profile', username=comment.comment_user.username) }}">{{
+              comment.comment_user.username }}</a>
+          </span>
+          <span>{{ moment(comment.time).fromNow() }}</span>
+        </span>
+        <p class="">{{ comment.body | safe }}</p>
+        {% endif %}
+
+        {% if moderate %}
+        <br>
+        {% if comment.disabled %}
+        <a class="btn btn-success btn-xs" href="{{ url_for('main.moderate_enable', comment_id=comment.id) }}">Enable</a>
+        {% else %}
+        <a class="btn btn-danger btn-xs"
+          href="{{ url_for('main.moderate_disable', comment_id=comment.id) }}">Disable</a>
+        {% endif %}
+        {% endif %}
+
+      </div>
+      {% endfor %}
+
+
+      {% if comments.has_prev %}
+      <a href="{{ url_for('main.moderate', page=posts.prev_num) }}">Previous</a>
+      {% endif %}
+      {% for page_num in comments.iter_pages(left_edge=1, right_edge=0, left_current=1, right_current=1) %}
+      {% if page_num %}
+      {% if comments.page == page_num %}
+      <a class="btn btn-info mb-4" href="{{ url_for('main.moderate', page=page_num) }}">{{ page_num }}</a>
+      {% else %}
+      <a class="btn btn-outline-info mb-4" href="{{ url_for('main.moderate', page=page_num) }}">{{ page_num }}</a>
+      {% endif %}
+      {% else %}...
+      {% endif %}
+      {% endfor %}
+      {% if comments.has_next %}
+      <a href="{{ url_for('main.moderate', page=posts.next_num) }}">Next</a>
+      {% endif %}
+
+
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

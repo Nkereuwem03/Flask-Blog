@@ -1,0 +1,6 @@
+.navigation .active {
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 5px;
+    padding: 0px 5px;
+}

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Damian{%endblock %}
+{% block scripts %}
+{{ super() }}
+{{ moment.include_moment() }}
+{% endblock scripts %}
+{% block content %}
+
+<!-- Page Header-->
+<header class="masthead" style="background-image: url('static/assets/img/home-bg.jpg')">
+    <div class="container position-relative px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-md-10 col-lg-8 col-xl-7">;
+                <div class="site-heading">
+                    <h1>Clean Blog</h1>
+                    <span class="subheading">A Blog Theme by Start Bootstrap</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="container mt-2">
+    {% with messages=get_flashed_messages(with_categories=true) %}
+    {% if messages%}
+    {% for category, message in messages %}
+    <div class="alert alert-{{category}} alert-dismissible fade show" role="alert">
+        <strong>{{ message }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
+
+<!-- Main Content-->
+<div class="container px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+        <div class="col-md-10 col-lg-8 col-xl-7">
+
+            <!-- <h2>{% if show_followed %}Followed Posts{% else %}All Posts{% endif %}</h2> -->
+
+            <!-- {% if show_followed %} -->
+            <!-- <button type="button" class="btn btn-primary" disabled>Showing Followed Posts</button> -->
+            <!-- <p>Showing Followed Posts</p> -->
+            <!-- {% else %} -->
+            <!-- <button type="button" class="btn btn-primary" disabled>Showing All Posts</button> -->
+            <!-- <p>Showing All Posts</p> -->
+            <!-- {% endif %} -->
+
+            <!-- <div> -->
+            <!-- Links to set cookies and redirect to home -->
+            <!-- <a href="{{ url_for('main.show_all') }}">Show All Posts</a>
+                <a href="{{ url_for('main.show_followed') }}">Show Followed Posts</a>
+            </div> -->
+
+            <div class="navigation d-flex gap-5 mt-2 pb-0">
+                <a class="nav-item {% if not show_followed %}active{% endif %}"
+                    href="{{ url_for('main.show_all') }}">All Posts</a>
+                <a class="nav-item {% if show_followed %}active{% endif %}"
+                    href="{{ url_for('main.show_followed') }}">Followed Posts</a>
+            </div>
+            <hr>
+
+            <!-- Post preview-->
+            {% for post in posts %}
+            <div class="post-preview">
+                <a href="{{ url_for('post.post_by_id', post_id=post['id']) }}">
+                    <h2 class="post-title">{{ post.title}}</h2>
+                    <h3 class="post-subtitle">{{ post.subtitle }}</h3>
+                </a>
+                <!-- TODO: Add code to delete posts below -->
+                <p class="post-meta">Posted by
+                    <a href="{{ url_for('auth.profile', username=post.author.username) }}">{{post.author.username}}</a>
+                    on {{ moment(post.date).fromNow() }}
+                    {% if current_user.id == post.author.id %}
+                    <a href="{{ url_for('post.delete_post', post_id=post.id) }}"><i class="fas fa-trash-alt ms-2"
+                            style="color: #ff0000" aria-hidden="true"></i></a>
+                    <a href="{{ url_for('post.edit_post', post_id=post.id) }}"><i style="color: blue"
+                            class="fas fa-edit"></i></i></a>
+                    {% endif %}
+                </p>
+            </div>
+            <!-- Divider-->
+            <hr class="my-4" />
+            {% endfor %}
+
+            {% if posts.has_prev %}
+            <a href="{{ url_for('main.home', page=posts.prev_num) }}">Previous</a>
+            {% endif %}
+
+            {% for page_num in posts.iter_pages(left_edge=1, right_edge=0, left_current=1, right_current=1) %}
+            {% if page_num %}
+            {% if posts.page == page_num %}
+            <a class="btn btn-info mb-4" href="{{ url_for('main.home', page=page_num) }}">{{ page_num }}</a>
+            {% else %}
+            <a class="btn btn-outline-info mb-4" href="{{ url_for('main.home', page=page_num) }}">{{ page_num }}</a>
+            {% endif %}
+            {% else %}...
+            {% endif %}
+            {% endfor %}
+            {% if posts.has_next %}
+            <a href="{{ url_for('main.home', page=posts.next_num) }}">Next</a>
+            {% endif %}
+
+            <!-- Pager-->
+            <div class="d-flex justify-content-center mb-4 mt-4"><a class="" href="#!">Older Posts</a></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

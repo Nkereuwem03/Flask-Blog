@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Update Profile{% endblock %}
+{% block content %}
+<!-- Page Header-->
+<header class="masthead" id="bg" style="background-image: url('/static/assets/img/signup-bg.jpg')">
+    <div class="container position-relative px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-md-10 col-lg-8 col-xl-7">
+                <div class="page-heading">
+                    <h1>Edit Profile</h1>
+                    <span class="subheading">Edit Profile</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- Main Content-->
+<main class="mb-4">
+    <div class="container px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-md-10 col-lg-8 col-xl-7">
+                <!-- <p>Want to Explore? Register below to have an indepth experience of this blog!</p> -->
+                <div class="my-5">
+
+                    <form action="{{ url_for('auth.edit') }}" enctype="multipart/form-data" method="post" novalidate>
+                        {{ form.hidden_tag() }}
+                        <fieldset class="form-group">
+                            <legend class="border-bottom mb-4 fw-bold">Edit Profile</legend>
+                            <div class="form-group">
+                                {{ form.username.label(class="form-control-label") }}
+                                {% if form.username.errors %}
+                                {{ form.username(class="form-control form-control-sm is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.username.errors %}
+                                    <span>{{error}}</span>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                {{ form.username(class="form-control form-control-sm") }}
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                {{ form.email.label(class="form-control-label") }}
+                                {% if form.email.errors %}
+                                {{ form.email(class="form-control form-control-sm is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.email.errors %}
+                                    <span>{{error}}</span>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                {{ form.email(class="form-control form-control-sm") }}
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                {{ form.profile_picture.label(class="form-control-label mt-2") }}<br>
+                                {{ form.profile_picture(class="form-control-file form-control-sm") }}
+                                {% if form.profile_picture.errors %}
+                                {% for error in form.profile_picture.errors %}
+                                <ul class="errors">
+                                    <li>{{ error }}</li>
+                                </ul>
+                                {% endfor %}
+                                {% endif %}
+                            </div><br>
+                        </fieldset>
+                        <div class="form-group">
+                            {{ form.submit(class="btn btn-outline-secondary fw-semibold") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

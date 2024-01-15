@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}{{ user.username }} {{ title }}{% endblock %}
+{% block scripts %}
+{{ super() }}
+{{ moment.include_moment() }}
+{% endblock scripts %}
+{% block content %}
+
+<!-- Page Header-->
+<header class="masthead" style="background-image: url('static/assets/img/home-bg.jpg')">
+    <div class="container position-relative px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-md-10 col-lg-8 col-xl-7">
+                <div class="site-heading">
+                    <h1>{{ user.username }} {{ title }} </h1>
+                    <span class="subheading">A Blog Theme by Start Bootstrap</span>
+                    {% if user.location %}
+                    From <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}
+                    </a>
+                    {% endif %}
+                    <p class="subheading">Member since {{ moment(user.member_since).format('L') }}.</p>
+                    {% if user.last_seen %}
+                    <p class="subheading">Last seen: {{ moment(user.last_seen).fromNow(refresh=True) }}.</p>
+                    {% endif %}
+                    {% if current_user.is_administrator() %}
+                    <p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+                    {% endif %}
+
+                    {% if current_user.can(Permission.FOLLOW) and user != current_user %}
+                    {% if not current_user.is_following(user) %}
+                    <a href="{{ url_for('follow.follows', username=user.username) }}" class="btn btn-success">Follow</a>
+                    {% else %}
+                    <a href="{{ url_for('follow.unfollow', username=user.username) }}"
+                        class="btn btn-primary">Unfollow</a>
+                    {% endif %}
+                    {% endif %}
+                    <a href="{{ url_for('follow.followers', username=user.username) }}">
+                        Followers: <span class="badge">{{ user.followers.count() - 1 }}</span>
+                    </a>
+                    <a href="{{ url_for('follow.following', username=user.username) }}">
+                        Following: <span class="badge">{{ user.followed.count() - 1 }}</span>
+                    </a>
+                    {% if current_user.is_authenticated and user != current_user and
+                    user.is_following(current_user) %}
+                    | <span class="label label-default">Follows you</span>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="container mt-2">
+    {% with messages=get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{category}} alert-dismissible fade show" role="alert">
+        <strong>{{ message }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
+
+<!-- Main Content-->
+<div class="container px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+        <div class="col-md-10 col-lg-8 col-xl-7">
+            <div class="shadow">
+                {% if not follows %}
+                <p>Not following anyone</p>
+                {% else %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Followings</th>
+                            <th>Followed since</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for follow in follows %}
+                        {% if follow.user.username != user.username %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('auth.profile', username=follow.user.username) }}">
+                                    <img class="rounded-circle account-img" src="{{ follow.user.gravatar(size=20) }}">
+                                    {{ follow.user.username }}
+                                </a>
+                            </td>
+                            <td>
+                                {% if follow.timestamp %}
+                                <span class="timestamp">{{ moment(follow.timestamp).fromNow(refresh=True) }}.</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+            </div>
+
+            {% if pagination.has_prev %}
+            <a href="{{ url_for('follow.followers', username=user.username, page=pagination.prev_num) }}">Previous</a>
+            {% endif %}
+
+            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=0, left_current=1, right_current=1) %}
+            {% if page_num %}
+            {% if pagination.page == page_num %}
+            <a class="btn btn-info mb-4"
+                href="{{ url_for('follow.followers', username=user.username, page=page_num) }}">{{ page_num }}</a>
+            {% else %}
+            <a class="btn btn-outline-info mb-4"
+                href="{{ url_for('follow.followers', username=user.username, page=page_num) }}">{{ page_num }}</a>
+            {% endif %}
+            {% else %}...
+            {% endif %}
+            {% endfor %}
+
+            {% if pagination.has_next %}
+            <a href="{{ url_for('follow.followers', page=pagination.next_num) }}">Next</a>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

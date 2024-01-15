@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}{{ user.username.capitalize() }} Profile{% endblock %}
+{% block scripts %}
+{{ super() }}
+{{ moment.include_moment() }}
+{% endblock scripts %}
+{% block content %}
+
+<!-- Page Header-->
+<header class="masthead" style="background-image: url('static/assets/img/home-bg.jpg')">
+    <div class="container position-relative px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-md-10 col-lg-8 col-xl-7">
+                <div class="site-heading">
+                    <h1>{{ user.username.title() }}</h1>
+                    <span class="subheading">A Blog Theme by Start Bootstrap</span>
+                    {% if user.location %}
+                    From <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}
+                    </a>
+                    {% endif %}
+                    <p class="subheading">Member since {{ moment(user.member_since).format('L') }}.</p>
+                    {% if user.last_seen %}
+                    <p class="subheading">Last seen: {{ moment(time).fromNow(refresh=True) }}.</p>
+                    {% endif %}
+                    {% if current_user.is_administrator() %}
+                    <p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+                    {% endif %}
+
+                    {% if current_user.can(Permission.FOLLOW) and user != current_user %}
+                    {% if not current_user.is_following(user) %}
+                    <a href="{{ url_for('follow.follows', username=user.username) }}" class="btn btn-success">Follow</a>
+                    {% else %}
+                    <a href="{{ url_for('follow.unfollow', username=user.username) }}"
+                        class="btn btn-primary">Unfollow</a>
+                    {% endif %}
+                    {% endif %}
+                    <a href="{{ url_for('follow.followers', username=user.username) }}">
+                        Followers: <span class="badge">{{ user.followers.count() - 1 }}</span>
+                    </a>
+                    <a href="{{ url_for('follow.following', username=user.username) }}">
+                        Following: <span class="badge">{{ user.followed.count() - 1 }}</span>
+                    </a>
+                    {% if current_user.is_authenticated and user != current_user and
+                    user.is_following(current_user) %}
+                    | <span class="label label-default">Follows you</span>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="container mt-2">
+    {% with messages=get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{category}} alert-dismissible fade show" role="alert">
+        <strong>{{ message }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
+
+<!-- Main Content-->
+<div class="container px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+        <div class="col-md-10 col-lg-8 col-xl-7">
+            <div class="d-md-flex gap-3 p-3 shadow">
+                <div class="card" style="width:35%; border:None;">
+                    <img width="100%" height="200px" class="rounded-circle account-img"
+                        src="{{ user.gravatar(size=256) }}">
+                    <!-- <img class="img-rounded profile-thumbnail" src="{{ user.gravatar(size=256) }}"> -->
+
+                    <!-- <img width="100%" height="200px" class="rounded-circle account-img" src="{{ url_for('static', filename='images/'+user.profile_picture) }}"> -->
+                </div>
+                <div class="">
+                    <h4 class="account-heading">{{ user.username.title() }}
+                        {% if current_user.username == user.username %}
+                        <p class="d-flex justify-content-between">
+                            <a style="font-size: 15px; color:blue" class="hover-icon" href="{{ url_for('auth.edit') }}">
+                                <i class="fa fa-edit" aria-hidden="true"></i>
+                                <span class="tootlip-text" id="top">Edit Profile</span>
+                            </a>
+                            <a style="font-size: 15px; color:blue" class="hover-icon"
+                                href="{{ url_for('auth.change_password') }}">
+                                <i class="fa fa-edit" aria-hidden="true"></i>
+                                <span class="tootlip-text" id="top">Change Password</span>
+                            </a>
+
+                        </p>
+                        {% endif %}
+                        {% if current_user.is_administrator() %}
+                        <a class="btn btn-danger" href="{{ url_for('auth.admin_edit_profile', id=user.id) }}">
+                            Edit Profile [Admin]
+                        </a>
+                        {% endif %}
+                    </h4>
+                    <p class="text-secondary">{{ user.email }}</p>
+
+                    <div class="d-flex justify-content-between">
+                        {% if user.id == current_user.id %}
+                        <li style="list-style-type: none; font-size:1rem">
+                            <a href="{{ url_for('post.create') }}" class="text-decoration-underline">Create Post</a>
+                        </li>
+                        {% endif %}
+                        <li style="list-style-type: none; font-size:1rem">
+                            <a href="" class="text-decoration-underline">Download profile picture</a>
+                        </li>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post preview-->
+            {% for post in posts %}
+            <div class="post-preview">
+                <a href="{{ url_for('post.post_by_id', post_id=post['id']) }}">
+                    <h2 class="post-title">{{ post.title}}</h2>
+                    <h3 class="post-subtitle">{{ post.subtitle }}</h3>
+                </a>
+                <!-- TODO: Add code to delete posts below -->
+                <p class="post-meta">Posted by
+                    <a href="{{ url_for('auth.profile', username=post.author.username) }}">{{post.author.username}}</a>
+                    on {{ moment(post.date).fromNow() }}
+                    {% if current_user.id == post.author.id %}
+                    <a href="{{ url_for('post.delete_post', post_id=post.id) }}"><i class="fas fa-trash-alt ms-2"
+                            style="color: #ff0000" aria-hidden="true"></i></a>
+                    <a href="{{ url_for('post.edit_post', post_id=post.id) }}"><i style="color: blue"
+                            class="fas fa-edit"></i></i></a>
+                    {% endif %}
+                </p>
+            </div>
+            <!-- Divider-->
+            <hr class="my-4" />
+            {% endfor %}
+
+            {% if posts.has_prev %}
+            <a href="{{ url_for('main.home', page=posts.prev_num) }}">Previous</a>
+            {% endif %}
+            {% for page_num in posts.iter_pages(left_edge=1, right_edge=0, left_current=1, right_current=1) %}
+            ` {% if page_num %}
+            {% if posts.page == page_num %}
+            <a class="btn btn-info mb-4" href="{{ url_for('main.home', page=page_num) }}">{{ page_num }}</a>
+            {% else %}
+            <a class="btn btn-outline-info mb-4" href="{{ url_for('main.home', page=page_num) }}">{{ page_num }}</a>
+            {% endif %}
+            {% else %}...
+            {% endif %}
+            {% endfor %}
+            {% if posts.has_next %}
+            <a href="{{ url_for('main.home', page=posts.next_num) }}">Next</a>
+            {% endif %}
+
+            <!-- Pager-->
+            <div class="d-flex justify-content-center mb-4 mt-4"><a class="" href="#!">Older Posts</a></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

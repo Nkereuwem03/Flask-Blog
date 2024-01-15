@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}403 error{%endblock %}
+{% block content %}
+
+<!-- Page Header-->
+<header class="masthead" style="background-image: url('static/assets/img/home-bg.jpg')">
+    <div class="container position-relative px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-md-10 col-lg-8 col-xl-7">
+                <div class="site-heading">
+                    <p>You don't have permission to do that (403)</p>
+                    <p>Please check your account and try again</p>
+                    <span>
+                        <a style="color:blue; text-decoration:underline; font-size:1.5rem"
+                            href="{{ url_for('main.home') }}">Back</a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+{% endblock %}

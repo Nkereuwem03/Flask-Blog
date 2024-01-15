@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Create Post{% endblock %}
+{% block scripts %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
+{% endblock %}
+{% block content %}
+<!-- Page Header-->
+<header class="masthead" id="bg" style="background-image: url('/static/assets/img/signup-bg.jpg')">
+    <div class="container position-relative px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-md-10 col-lg-8 col-xl-7">
+                <div class="page-heading">
+                    <h1>Create Post</h1>
+                    <span class="subheading">Start creating contents</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="container mt-2">
+    {% with messages=get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{category}} alert-dismissible fade show" role="alert">
+        <strong>{{ message }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
+
+<!-- Main Content-->
+<main class="mb-4">
+    <div class="container px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-md-10 col-lg-8 col-xl-7">
+                <p>Start creating contents</p>
+                <div class="my-5">
+
+                    <form action="{{ url_for('post.create') }}" method="post" novalidate>
+                        {{ form.hidden_tag() }}
+                        <fieldset class="form-group">
+                            <!--<legend class="border-bottom mb-4 fw-bold">Join Today</legend>-->
+                            <legend class="border-bottom mb-4 fw-bold">Create post</legend>
+
+                            <div class="form-group">
+                                {{ form.title.label(class="form-control-label") }}
+                                {% if form.title.errors %}
+                                {{ form.title(class="form-control form-control-sm is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.title.errors %}
+                                    <span>{{error}}</span>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                {{ form.title(class="form-control form-control-sm") }}
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group mt-2">
+                                {{ form.subtitle.label(class="form-control-label") }}
+                                {% if form.subtitle.errors %}
+                                {{ form.subtitle(class="form-control form-control-sm is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.subtitle.errors %}
+                                    <span>{{error}}</span>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                {{ form.subtitle(class="form-control form-control-sm") }}
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group mt-2">
+                                {{ form.img_url.label(class="form-control-label") }}
+                                {% if form.img_url.errors %}
+                                {{ form.img_url(class="form-control form-control-sm is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.img_url.errors %}
+                                    <span>{{error}}</span>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                {{ form.img_url(class="form-control form-control-sm") }}
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group mt-2">
+                                {{ form.body.label(class="form-control-label") }}
+                                {% if form.body.errors %}
+                                {{ form.body(class="form-control form-control-sm is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.body.errors %}
+                                    <span>{{error}}</span>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                {{ form.body(class="form-control form-control-sm") }}
+                                {% endif %}
+                            </div>
+
+                            <!-- <div class="form-group mt-2">
+                                        {{ form.body.label() }}
+                                        {{ form.body() }}
+                                    </div> -->
+
+                            <br>
+                        </fieldset>
+
+                        <div class="form-group">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ ckeditor.load() }}
+    {{ ckeditor.config(name='body') }}
+</main>
+{% endblock %}

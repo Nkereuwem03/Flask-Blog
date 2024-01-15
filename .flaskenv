@@ -1,0 +1,3 @@
+FLASK_APP=Blog
+FLASK_DEBUG=1
+FLASK_ENV=development
